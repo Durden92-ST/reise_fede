@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Eine Einladung für Fede</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Caveat:wght@500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ALLE TEXTE + EINSTELLUNGEN STEHEN IM <script> UNTEN (CONFIG/TEXT)
+   ============================================================ */
+:root{
+  --ink:#15233b; --ink-2:#1f3358; --paper:#fbf1dd; --paper-2:#f3e4c8;
+  --coral:#ff5e5b; --gold:#ffc145; --teal:#2ec4b6; --plum:#7a4fb0;
+  --air-red:#e63946; --air-blue:#2a64b0; --shadow:0 24px 60px -20px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Space Grotesk",system-ui,sans-serif;color:var(--paper);
+  background:
+    radial-gradient(120% 80% at 50% -10%, #2a3f6b 0%, transparent 60%),
+    radial-gradient(140% 120% at 90% 110%, #b8456a 0%, transparent 55%),
+    radial-gradient(120% 120% at 10% 100%, #c8742f 0%, transparent 50%),
+    linear-gradient(180deg, #0e1830 0%, #15233b 55%, #221a3a 100%);
+  min-height:100%;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.7}
+.stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:tw 4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
+.float-layer{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.float-layer span{position:absolute;bottom:-40px;font-size:22px;opacity:0;animation:floatUp linear infinite}
+@keyframes floatUp{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.5}90%{opacity:.5}100%{transform:translateY(-110vh) rotate(220deg);opacity:0}}
+
+.wrap{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:14px 18px 18px;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+
+/* nav-leiste (zurück / von vorn) */
+.nav{display:none;justify-content:space-between;align-items:center;margin-bottom:4px}
+.navbtn{font-family:"Space Grotesk";font-weight:600;font-size:13px;cursor:pointer;
+  background:rgba(251,241,221,.08);border:1.5px solid rgba(251,241,221,.25);color:var(--paper);
+  padding:7px 14px;border-radius:999px;transition:.15s}
+.navbtn:hover{background:rgba(251,241,221,.16);transform:translateY(-1px)}
+
+/* fortschritt: flugroute */
+.route{display:flex;align-items:center;gap:8px;margin:6px auto 22px;width:100%;max-width:420px;opacity:0;transition:opacity .4s}
+.route.show{opacity:1}
+.route .line{flex:1;height:2px;border-top:2px dashed rgba(251,241,221,.35);position:relative}
+.route .dot{width:11px;height:11px;border-radius:50%;border:2px solid rgba(251,241,221,.45);background:transparent;flex:none;transition:.35s}
+.route .dot.done{background:var(--gold);border-color:var(--gold);box-shadow:0 0 14px var(--gold)}
+.route .dot.active{background:var(--coral);border-color:var(--coral);transform:scale(1.35)}
+.route .plane{position:absolute;top:50%;font-size:18px;transition:left .6s cubic-bezier(.5,1.6,.4,1);transform:translate(-50%,-55%)}
+
+.screen{display:none;flex:1;flex-direction:column;justify-content:center;animation:fadeIn .5s ease both}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.eyebrow{letter-spacing:.32em;text-transform:uppercase;font-size:11px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:14px}
+h1{font-family:"Fraunces";font-weight:600;font-size:clamp(30px,7vw,52px);line-height:1.05;text-align:center;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--gold)}
+.sub{text-align:center;color:rgba(251,241,221,.78);max-width:32ch;margin:14px auto 0;font-size:clamp(15px,2.4vw,18px)}
+
+.btn{font-family:"Space Grotesk";font-weight:700;font-size:17px;border:none;cursor:pointer;padding:15px 30px;border-radius:999px;color:var(--ink);background:var(--gold);box-shadow:0 12px 26px -10px rgba(255,193,69,.8);transition:transform .15s,box-shadow .2s;display:inline-flex;align-items:center;gap:9px}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn.coral{background:var(--coral);color:#fff;box-shadow:0 12px 26px -10px rgba(255,94,91,.85)}
+.btn.ghost{background:transparent;color:var(--paper);border:2px solid rgba(251,241,221,.35);box-shadow:none}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.center{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:30px}
+
+/* SCREEN 0: kouvert */
+.envelope-stage{display:flex;flex-direction:column;align-items:center;gap:30px}
+.envelope{position:relative;width:min(86vw,340px);height:min(58vw,226px);cursor:pointer;filter:drop-shadow(var(--shadow));perspective:900px}
+.env-body{position:absolute;inset:0;background:var(--paper);border-radius:10px;overflow:hidden}
+.env-body::before{content:"";position:absolute;inset:0;border-radius:10px;padding:7px;
+  background:repeating-linear-gradient(45deg,var(--air-red) 0 12px,#fff 12px 24px,var(--air-blue) 24px 36px,#fff 36px 48px);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.env-pocket{position:absolute;inset:0;clip-path:polygon(0 38%,50% 78%,100% 38%,100% 100%,0 100%);background:linear-gradient(180deg,#f3e4c8,#e9d4ab)}
+.env-flap{position:absolute;top:0;left:0;right:0;height:62%;background:linear-gradient(180deg,#f7ead2,#efdcb6);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease;z-index:4;border-radius:10px 10px 0 0}
+.seal{position:absolute;top:42%;left:50%;width:54px;height:54px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#ff8a87,var(--coral));display:grid;place-items:center;color:#fff;font-family:"Fraunces";font-style:italic;font-size:22px;box-shadow:0 6px 14px rgba(0,0,0,.3),inset 0 -3px 8px rgba(0,0,0,.25);z-index:5;transition:.5s}
+.letter{position:absolute;left:8%;right:8%;top:14%;bottom:8%;background:#fffaf0;border-radius:6px;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transform:translateY(0);transition:transform .7s ease;color:var(--ink);padding:14px;text-align:center}
+.letter .hi{font-family:"Caveat";font-size:clamp(34px,9vw,56px);font-weight:700;color:var(--coral);line-height:.9}
+.letter .stamp{position:absolute;top:8px;right:10px;width:42px;height:50px;border:2px dashed var(--air-blue);border-radius:4px;display:grid;place-items:center;font-size:20px;transform:rotate(8deg)}
+.envelope.open .env-flap{transform:rotateX(180deg)}
+.envelope.open .seal{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+.envelope.open .letter{transform:translateY(-46%) scale(1.04)}
+.hint{font-family:"Caveat";font-size:24px;color:var(--gold)}
+
+/* SCREEN 1: ja/nein */
+.playarea{position:relative;height:240px;margin:34px auto 0;width:100%;max-width:520px}
+#yesBtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;padding:20px 46px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 12px 26px -8px rgba(255,193,69,.8)}50%{box-shadow:0 0 0 14px rgba(255,193,69,0)}}
+#noBtn{position:absolute;left:0;top:0;font-size:16px;padding:14px 26px;
+  background:var(--ink-2);color:rgba(251,241,221,.85);border:2px solid rgba(251,241,221,.25);box-shadow:none;
+  transition:left .12s ease-out,top .12s ease-out}
+#noBtn.wiggle{animation:nbWiggle 2.6s ease-in-out infinite}
+@keyframes nbWiggle{0%,86%,100%{transform:translateX(0) rotate(0)}88%{transform:translateX(-3px) rotate(-5deg)}91%{transform:translateX(3px) rotate(5deg)}94%{transform:translateX(-2px) rotate(-3deg)}97%{transform:translateX(1px) rotate(2deg)}}
+#noBtn.nervous{animation:nbNervous .18s linear infinite}
+@keyframes nbNervous{0%{transform:translate(-1.5px,0) rotate(-3deg)}25%{transform:translate(1.5px,-1px) rotate(3deg)}50%{transform:translate(-1.5px,1px) rotate(-3deg)}75%{transform:translate(1.5px,0) rotate(3deg)}100%{transform:translate(-1.5px,0) rotate(-3deg)}}
+
+/* SCREEN 2: ziele */
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:30px}
+.card{position:relative;background:var(--paper);color:var(--ink);border-radius:18px;padding:20px 18px;cursor:pointer;text-align:left;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 14px 30px -18px rgba(0,0,0,.6)}
+.card:hover{transform:translateY(-5px) rotate(-.6deg);box-shadow:0 22px 40px -18px rgba(0,0,0,.6)}
+.card .flag{font-size:40px;line-height:1;display:block;margin-bottom:10px}
+.card h3{font-family:"Fraunces";font-weight:600;font-size:23px}
+.card p{font-size:13.5px;color:#5b5347;margin-top:3px}
+.card .stamp{position:absolute;top:10px;right:-2px;opacity:0;transform:rotate(-14deg) scale(.6);font-family:"Fraunces";font-style:italic;font-weight:600;font-size:14px;color:var(--coral);border:2px solid var(--coral);border-radius:8px;padding:3px 9px;transition:.25s}
+.card.sel{outline:3px solid var(--gold);transform:translateY(-5px)}
+.card.sel .stamp{opacity:1;transform:rotate(-14deg) scale(1)}
+.card.sel::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(255,193,69,.18))}
+
+/* SCREEN 3: wochenenden */
+.chips{display:flex;flex-direction:column;gap:12px;margin-top:28px;max-width:460px;width:100%;margin-inline:auto}
+.chip{background:rgba(251,241,221,.07);border:2px solid rgba(251,241,221,.22);border-radius:14px;padding:15px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:.18s;font-size:16px;font-weight:500}
+.chip .ico{font-size:22px}
+.chip .meta{margin-left:auto;font-size:12px;color:rgba(251,241,221,.6);text-align:right}
+.chip:hover{border-color:var(--teal);background:rgba(46,196,182,.12)}
+.chip.sel{border-color:var(--gold);background:rgba(255,193,69,.16);box-shadow:0 0 0 3px rgba(255,193,69,.12)}
+.chip.sel .ico{transform:scale(1.2)}
+
+/* SCREEN 4: boarding pass */
+.pass{background:var(--paper);color:var(--ink);border-radius:20px;overflow:hidden;max-width:480px;margin:26px auto 0;box-shadow:var(--shadow);position:relative}
+.pass .head{background:linear-gradient(110deg,var(--coral),var(--plum));color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center}
+.pass .head .brand{font-family:"Fraunces";font-style:italic;font-weight:600;font-size:20px}
+.pass .head .cls{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.85}
+.pass .row{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;gap:8px}
+.pass .pt{text-align:center}
+.pass .pt .code{font-family:"Fraunces";font-weight:600;font-size:30px;line-height:1}
+.pass .pt .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8a8170;margin-top:4px}
+.pass .arrow{color:var(--coral);font-size:22px}
+.pass .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 22px 18px;border-bottom:2px dashed #d9c8a4}
+.pass .grid .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9a8f78}
+.pass .grid .val{font-weight:700;font-size:14px;margin-top:2px}
+.pass .foot{display:flex;align-items:center;justify-content:space-between;padding:16px 22px}
+.pass .barcode{height:40px;flex:1;margin-right:16px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 6px,transparent 6px 10px)}
+.pass .seat{text-align:right}
+.pass .seat .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9a8f78}
+.pass .seat .val{font-family:"Fraunces";font-weight:600;font-size:22px}
+.notch{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--ink);top:calc(100% - 96px)}
+.notch.l{left:-13px}.notch.r{right:-13px}
+.popline{font-family:"Caveat";font-size:clamp(26px,6vw,40px);color:var(--gold);text-align:center;margin-top:8px}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* musik-schalter */
+#musicToggle{position:fixed;right:14px;bottom:14px;z-index:60;width:46px;height:46px;border-radius:50%;
+  border:1.5px solid rgba(251,241,221,.3);background:rgba(21,35,59,.7);backdrop-filter:blur(6px);
+  color:var(--paper);font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.6);transition:transform .15s,background .2s}
+#musicToggle:hover{transform:scale(1.08);background:rgba(31,51,88,.85)}
+#musicToggle.playing{border-color:var(--gold)}
+
+@media (max-width:560px){
+  .wrap{padding:12px 14px 16px}
+  .route{margin:4px auto 12px}
+  .eyebrow{margin-bottom:8px;font-size:10px}
+  h1{font-size:clamp(25px,8vw,38px)}
+  .sub{margin-top:9px;font-size:14px}
+  .center{margin-top:16px;gap:10px}
+  .btn{font-size:16px;padding:13px 24px}
+  .cards{grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+  .card{padding:13px 12px;border-radius:14px}
+  .card .flag{font-size:30px;margin-bottom:6px}
+  .card h3{font-size:18px}
+  .card p{font-size:11.5px}
+  .chips{margin-top:14px;gap:9px}
+  .chip{padding:12px 14px;font-size:14.5px;border-radius:12px}
+  .chip .meta{font-size:11px}
+  .playarea{height:200px;margin-top:18px}
+  #yesBtn{font-size:19px;padding:16px 36px}
+  #noBtn{font-size:14px;padding:11px 20px}
+  .pass{margin-top:14px}
+  .envelope-stage{gap:20px}
+  #musicToggle{width:42px;height:42px;right:12px;bottom:12px;font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.08s!important}.float-layer{display:none}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="float-layer" id="floats"></div>
+<canvas id="confetti"></canvas>
+<div id="ytWrap" style="position:fixed;width:1px;height:1px;left:-9999px;bottom:0;overflow:hidden;opacity:0;pointer-events:none"><div id="ytplayer"></div></div>
+<button id="musicToggle" aria-label="Musik an/aus">🔊</button>
+
+<div class="wrap">
+  <div class="nav" id="nav">
+    <button class="navbtn" id="backBtn">← Zurück</button>
+    <button class="navbtn" id="replayBtn">↺ Von vorn</button>
+  </div>
+
+  <div class="route" id="route">
+    <span class="plane" id="plane">✈️</span>
+    <span class="dot" data-step="1"></span><span class="line"></span>
+    <span class="dot" data-step="2"></span><span class="line"></span>
+    <span class="dot" data-step="3"></span><span class="line"></span>
+    <span class="dot" data-step="4"></span>
+  </div>
+
+  <!-- SCREEN 0 -->
+  <section class="screen active" id="s0">
+    <div class="envelope-stage">
+      <div class="eyebrow" id="t-s0-eyebrow"></div>
+      <div class="envelope" id="envelope">
+        <div class="env-body">
+          <div class="letter">
+            <span class="stamp">💌</span>
+            <span class="hi" id="helloName"></span>
+            <span style="font-size:13px;color:#6b6051" id="t-letter-sub"></span>
+          </div>
+          <div class="env-pocket"></div>
+          <div class="env-flap"></div>
+          <div class="seal" id="sealLetter">F</div>
+        </div>
+      </div>
+      <div class="hint" id="hint"></div>
+      <button class="btn" id="openBtn" style="display:none"></button>
+    </div>
+  </section>
+
+  <!-- SCREEN 1 -->
+  <section class="screen" id="s1">
+    <div class="eyebrow" id="t-s1-eyebrow"></div>
+    <h1 id="q1text"></h1>
+    <div class="playarea" id="playarea">
+      <button class="btn" id="yesBtn"></button>
+      <button class="btn" id="noBtn">Nein</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 1b -->
+  <section class="screen" id="s1b">
+    <div class="eyebrow" id="t-s1b-eyebrow"></div>
+    <h1 id="t-s1b-title"></h1>
+    <p class="sub" id="t-s1b-sub"></p>
+    <div class="center"><button class="btn coral" id="weiter1"></button></div>
+  </section>
+
+  <!-- SCREEN 2 -->
+  <section class="screen" id="s2">
+    <div class="eyebrow" id="t-s2-eyebrow"></div>
+    <h1 id="t-s2-title"></h1>
+    <p class="sub" id="t-s2-sub"></p>
+    <div class="cards" id="destCards"></div>
+    <div class="center"><button class="btn" id="weiter2" disabled></button></div>
+  </section>
+
+  <!-- SCREEN 3 -->
+  <section class="screen" id="s3">
+    <div class="eyebrow" id="t-s3-eyebrow"></div>
+    <h1 id="t-s3-title"></h1>
+    <p class="sub" id="t-s3-sub"></p>
+    <div class="chips" id="weekendChips"></div>
+    <div class="center"><button class="btn" id="confirm3" disabled></button></div>
+  </section>
+
+  <!-- SCREEN 4 -->
+  <section class="screen" id="s4">
+    <div class="eyebrow" id="t-s4-eyebrow"></div>
+    <h1 id="t-s4-title"></h1>
+    <p class="popline" id="popline"></p>
+    <div class="pass" id="pass">
+      <span class="notch l"></span><span class="notch r"></span>
+      <div class="head"><span class="brand" id="t-brand"></span><span class="cls" id="t-class"></span></div>
+      <div class="row">
+        <div class="pt"><div class="code" id="fromCode"></div><div class="lbl" id="fromName2"></div></div>
+        <div class="arrow">✈</div>
+        <div class="pt"><div class="code" id="toCode"></div><div class="lbl" id="toName2"></div></div>
+      </div>
+      <div class="grid">
+        <div><div class="lbl" id="t-l-dest"></div><div class="val" id="passDest">—</div></div>
+        <div><div class="lbl" id="t-l-date"></div><div class="val" id="passDate">—</div></div>
+        <div><div class="lbl">Gate</div><div class="val">LOVE ❤</div></div>
+      </div>
+      <div class="foot">
+        <div class="barcode"></div>
+        <div class="seat"><div class="lbl">Sitz</div><div class="val">2A · 2B</div></div>
+      </div>
+    </div>
+    <div class="center">
+      <button class="btn coral" id="celebrate"></button>
+      <button class="btn ghost" id="restart"></button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   ▼▼▼  1) ALLE TEXTE — HIER ÄNDERN  ▼▼▼
+   <em>...</em> = goldene Hervorhebung in den Überschriften.
+   ════════════════════════════════════════════════════════════ */
+const TEXT = {
+  toName:   "Fede",
+  fromName: "Matthias",
+
+  // Screen 0 – Kuvert
+  s0_eyebrow: "Persönliche Luftpost",
+  hello:      "Hey Fede",
+  letterSub:  "Etwas wartet auf dich …",
+  hint:       "↑ tipp auf das Kuvert",
+  openBtn:    "Öffnen ✉️",
+
+  // Screen 1 – Frage Ja/Nein
+  s1_eyebrow: "Frage 1 von 3",
+  q1:         "Fede, willst du mit mir zusammen in den Urlaub?",
+  yesBtn:     "Ja! 💛",
+
+  // Screen 1b – Bestätigung
+  s1b_eyebrow:"Moment mal …",
+  s1b_title:  "Hast du <em>wirklich</em> Ja gesagt?",
+  s1b_sub:    "Kein Zurück mehr. Das ist jetzt offiziell aktenkundig. 😏",
+  weiter1:    "Weiter →",
+
+  // Screen 2 – Ziel
+  s2_eyebrow: "Frage 2 von 3",
+  s2_title:   "Wo wollen wir <em>hin?</em>",
+  s2_sub:     "Matthias hat da ein paar Ideen. Wähl eine aus.",
+  weiter2:    "Ziel bestätigen →",
+
+  // Screen 3 – Wochenende
+  s3_eyebrow: "Frage 3 von 3",
+  s3_title:   "Wann <em>passt</em> es dir?",
+  s3_sub:     "Vier Wochenenden im nächsten Frühling. Such dir eins aus.",
+  confirm3:   "Bestätigen ✓",
+
+  // Screen 4 – Abschluss / Ticket
+  s4_eyebrow: "Es ist gebucht (im Herzen)",
+  s4_title:   "Wir <em>verreisen!</em>",
+  brand:      "LoveAir ✈",
+  ticketClass:"Boarding Pass · First Class",
+  lblDest:    "Ziel",
+  lblDate:    "Datum",
+  celebrate:  "Nochmal Konfetti 🎉",
+  restart:    "Von vorn",
+};
+
+/* ════════════════════════════════════════════════════════════
+   ▼▼▼  2) ZIELE — beliebig viele, frei änderbar  ▼▼▼
+   ════════════════════════════════════════════════════════════ */
+const DESTINATIONS = [
+  { emoji:"🌅", name:"Madrid",     tag:"Tapas, Sonne & lange Abende" },
+  { emoji:"🕌", name:"Istanbul",   tag:"Zwei Kontinente an einem Tag" },
+  { emoji:"🐪", name:"Marokko",    tag:"Souks, Wüste & Minztee" },
+  { emoji:"🚲", name:"Kopenhagen", tag:"Hygge, Zimt & Kanäle" },
+];
+
+/* ════════════════════════════════════════════════════════════
+   ▼▼▼  3) WOCHENENDEN (Fr–So, geprüft) — frei änderbar  ▼▼▼
+   ════════════════════════════════════════════════════════════ */
+const WEEKENDS = [
+  { ico:"🐰", text:"Fr 26. – So 28. März 2027",  meta:"Osterwochenende · Pasquetta" },
+  { ico:"🌷", text:"Fr 16. – So 18. April 2027", meta:"ruhig & neutral" },
+  { ico:"🌿", text:"Fr 7. – So 9. Mai 2027",     meta:"Frühsommer-Gefühl" },
+  { ico:"☀️", text:"Fr 28. – So 30. Mai 2027",   meta:"fast schon Sommer" },
+];
+
+/* ════════════════════════════════════════════════════════════
+   ▼▼▼  4) "NEIN"-BUTTON VERHALTEN — an/aus schalten  ▼▼▼
+   ════════════════════════════════════════════════════════════ */
+const NO_BUTTON = {
+  startSide:      "right",   // "right" oder "left": wo er startet
+  wiggle:         true,      // dauerhaftes leichtes Zappeln (zeigt: ich bin lebendig)
+  startleOnEnter: true,      // einmaliger "Schreck-Hüpfer" beim Erscheinen
+  tremble:        true,      // zittert stärker, je näher die Maus kommt
+  escalateLabels: true,      // Beschriftung eskaliert bei jedem Ausweichen
+  labels: ["Nein","Nein?","Sicher?","Echt jetzt?","Bist du sicher?","Letzte Chance!","Nein heißt Ja 😏"],
+};
+
+/* ════════════════════════════════════════════════════════════
+   ▼▼▼  5) HINTERGRUND-MUSIK (offizieller YouTube-Stream)  ▼▼▼
+   WICHTIG: YouTube spielt nur, wenn die Seite über http/https läuft
+   (gehostet ODER lokal über einen Mini-Server). Aus einer per
+   Doppelklick geöffneten Datei (file://) startet kein Ton.
+   "youtubeId" = der Teil nach v= in der YouTube-URL.
+   Alternativen:
+     "Y9V74fro5wg"  -> offizielles Musikvideo            [Standard]
+     "ZwPJCjpyiLM"  -> offizieller Audio-Upload (Universal)
+   ════════════════════════════════════════════════════════════ */
+const MUSIC = {
+  enabled:     true,            // false = keine Musik
+  youtubeId:   "Y9V74fro5wg",   // Video-ID (Teil nach v= in der URL)
+  volume:      45,              // 0–100
+  loop:        true,
+  startOnOpen: true,            // beim Kuvert-Öffnen starten
+};
+/* ════════════════════════════════════════════════════════════
+   ▲▲▲  AB HIER NICHTS MEHR ÄNDERN NÖTIG  ▲▲▲
+   ════════════════════════════════════════════════════════════ */
+
+const $ = s => document.querySelector(s);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const state = { dest:null, weekend:null };
+
+/* ---- texte einsetzen ---- */
+function T(id,key,html){ const el=$('#'+id); if(el){ html?el.innerHTML=TEXT[key]:el.textContent=TEXT[key]; } }
+T('t-s0-eyebrow','s0_eyebrow'); $('#helloName').textContent=TEXT.hello;
+T('t-letter-sub','letterSub'); T('hint','hint'); T('openBtn','openBtn');
+$('#sealLetter').textContent=TEXT.toName.charAt(0).toUpperCase();
+T('t-s1-eyebrow','s1_eyebrow'); $('#q1text').textContent=TEXT.q1; T('yesBtn','yesBtn');
+T('t-s1b-eyebrow','s1b_eyebrow'); T('t-s1b-title','s1b_title',true); T('t-s1b-sub','s1b_sub'); T('weiter1','weiter1');
+T('t-s2-eyebrow','s2_eyebrow'); T('t-s2-title','s2_title',true); T('t-s2-sub','s2_sub'); T('weiter2','weiter2');
+T('t-s3-eyebrow','s3_eyebrow'); T('t-s3-title','s3_title',true); T('t-s3-sub','s3_sub'); T('confirm3','confirm3');
+T('t-s4-eyebrow','s4_eyebrow'); T('t-s4-title','s4_title',true); T('t-brand','brand'); T('t-class','ticketClass');
+T('t-l-dest','lblDest'); T('t-l-date','lblDate'); T('celebrate','celebrate'); T('restart','restart');
+$('#fromName2').textContent=TEXT.fromName; $('#toName2').textContent=TEXT.toName;
+$('#fromCode').textContent=TEXT.fromName.slice(0,3).toUpperCase();
+$('#toCode').textContent=TEXT.toName.slice(0,3).toUpperCase();
+
+/* ---- deko ---- */
+(function deco(){
+  const stars=$('#stars');
+  for(let i=0;i<60;i++){const s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*4)+'s';stars.appendChild(s);}
+  if(reduced) return;
+  const floats=$('#floats'),ic=['❤️','✈️','🌍','🧳','🏖️','💛','🗺️','⭐'];
+  for(let i=0;i<14;i++){const s=document.createElement('span');s.textContent=ic[i%ic.length];s.style.left=Math.random()*100+'%';s.style.animationDuration=(10+Math.random()*12)+'s';s.style.animationDelay=(Math.random()*12)+'s';s.style.fontSize=(16+Math.random()*16)+'px';floats.appendChild(s);}
+})();
+
+/* ════════ NAVIGATION (mit Zurück + Von vorn) ════════ */
+const STEP={s0:0,s1:1,s1b:1,s2:2,s3:3,s4:4};
+let cur='s0'; const hist=[];
+function render(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('#'+id).classList.add('active'); cur=id;
+  const step=STEP[id];
+  if(step>0){ setRoute(step); } else { $('#route').classList.remove('show'); }
+  $('#nav').style.display = id==='s0' ? 'none' : 'flex';
+  $('#backBtn').style.visibility = hist.length ? 'visible' : 'hidden';
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='s1') enterS1();
+}
+function go(id){ if(id==='s2') buildDest(); if(id==='s3') buildWeek(); hist.push(cur); render(id); }
+function back(){ if(hist.length){ render(hist.pop()); } }
+function replay(){ hist.length=0; resetAll(); render('s0'); }
+$('#backBtn').addEventListener('click',back);
+$('#replayBtn').addEventListener('click',replay);
+function resetAll(){
+  opened=false; $('#envelope').classList.remove('open'); $('#hint').style.display='block'; $('#openBtn').style.display='none';
+  state.dest=null; state.weekend=null;
+  document.querySelectorAll('.card.sel,.chip.sel').forEach(x=>x.classList.remove('sel'));
+  $('#weiter2').disabled=true; $('#confirm3').disabled=true;
+}
+function setRoute(step){
+  $('#route').classList.add('show');
+  document.querySelectorAll('.route .dot').forEach((d,i)=>{d.classList.remove('active','done');if(i+1<step)d.classList.add('done');if(i+1===step)d.classList.add('active');});
+  $('#plane').style.left=([6,37,68,99][step-1]??6)+'%';
+}
+
+/* ════════ SCREEN 0 ════════ */
+let opened=false;
+function openEnvelope(){
+  if(opened) return; opened=true;
+  if(MUSIC.startOnOpen) startMusic();
+  $('#envelope').classList.add('open'); $('#hint').style.display='none';
+  burst(innerWidth/2, innerHeight*0.35, 40);
+  setTimeout(()=>{$('#openBtn').style.display='inline-flex';},700);
+}
+$('#envelope').addEventListener('click',openEnvelope);
+$('#openBtn').addEventListener('click',()=>go('s1'));
+
+/* ════════ SCREEN 1: NEIN flieht (Maus + Touch) ════════ */
+const playarea=$('#playarea'), noBtn=$('#noBtn'), yesBtn=$('#yesBtn');
+let noLabelIdx=0, lastLabel=0, startleTimer=null;
+
+function setNoCenter(cx,cy){
+  const a=playarea.getBoundingClientRect();
+  const pad=8, w=noBtn.offsetWidth, h=noBtn.offsetHeight;
+  cx=Math.max(pad+w/2,Math.min(a.width-pad-w/2,cx));
+  cy=Math.max(pad+h/2,Math.min(a.height-pad-h/2,cy));
+  noBtn.style.left=(cx-w/2)+'px'; noBtn.style.top=(cy-h/2)+'px';
+}
+function enterS1(){
+  noLabelIdx=0; lastLabel=0;
+  noBtn.textContent = NO_BUTTON.escalateLabels ? NO_BUTTON.labels[0] : 'Nein';
+  noBtn.classList.remove('nervous');
+  // platzieren (warten bis sichtbar -> offset verfügbar)
+  requestAnimationFrame(()=>{
+    const a=playarea.getBoundingClientRect();
+    const cx = NO_BUTTON.startSide==='left' ? a.width*0.30 : a.width*0.70;
+    setNoCenter(cx, a.height/2);
+    if(NO_BUTTON.wiggle && !reduced) noBtn.classList.add('wiggle'); else noBtn.classList.remove('wiggle');
+    // einmaliger schreck-hüpfer
+    clearTimeout(startleTimer);
+    if(NO_BUTTON.startleOnEnter && !reduced){
+      startleTimer=setTimeout(()=>{
+        const dir=NO_BUTTON.startSide==='left'?1:-1;
+        const a2=playarea.getBoundingClientRect();
+        const baseX=(NO_BUTTON.startSide==='left'?a2.width*0.30:a2.width*0.70);
+        setNoCenter(baseX+dir*70, a2.height/2 - 26);
+        setTimeout(()=>setNoCenter(baseX, a2.height/2), 230);
+      }, 650);
+    }
+  });
+}
+function escalate(){
+  if(!NO_BUTTON.escalateLabels) return;
+  const now=Date.now(); if(now-lastLabel<700) return; lastLabel=now;
+  noLabelIdx=Math.min(noLabelIdx+1, NO_BUTTON.labels.length-1);
+  noBtn.textContent=NO_BUTTON.labels[noLabelIdx];
+}
+function dodge(px,py){
+  const b=noBtn.getBoundingClientRect();
+  const cx=b.left+b.width/2, cy=b.top+b.height/2;
+  const dx=cx-px, dy=cy-py, dist=Math.hypot(dx,dy);
+  const TH=120;
+  if(NO_BUTTON.tremble && dist<TH*1.7 && dist>=TH){ noBtn.classList.add('nervous'); }
+  else if(dist>=TH*1.7){ noBtn.classList.remove('nervous'); }
+  if(dist<TH){
+    noBtn.classList.remove('nervous');
+    const a=playarea.getBoundingClientRect();
+    setNoCenter(cx+(dx/(dist||1))*170 - a.left, cy+(dy/(dist||1))*170 - a.top);
+    escalate();
+  }
+}
+playarea.addEventListener('mousemove',e=>{ if(cur==='s1') dodge(e.clientX,e.clientY); });
+playarea.addEventListener('touchmove',e=>{ if(cur==='s1'){const t=e.touches[0];dodge(t.clientX,t.clientY);} },{passive:true});
+function teleport(e){
+  e.preventDefault(); e.stopPropagation();
+  const a=playarea.getBoundingClientRect();
+  setNoCenter(noBtn.offsetWidth/2+Math.random()*(a.width-noBtn.offsetWidth),
+              noBtn.offsetHeight/2+Math.random()*(a.height-noBtn.offsetHeight));
+  escalate();
+}
+noBtn.addEventListener('mousedown',teleport);
+noBtn.addEventListener('touchstart',teleport,{passive:false});
+noBtn.addEventListener('click',teleport);
+
+yesBtn.addEventListener('click',()=>{ burst(innerWidth/2,innerHeight*0.5,60); setTimeout(()=>go('s1b'),350); });
+$('#weiter1').addEventListener('click',()=>go('s2'));
+
+/* ════════ SCREEN 2: ZIELE ════════ */
+function buildDest(){
+  const box=$('#destCards'); if(box.dataset.built) return; box.dataset.built=1;
+  DESTINATIONS.forEach(d=>{
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML=`<span class="flag">${d.emoji}</span><h3>${d.name}</h3><p>${d.tag}</p><span class="stamp">Gewählt ✓</span>`;
+    c.addEventListener('click',()=>{
+      document.querySelectorAll('#destCards .card').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel'); state.dest=d; $('#weiter2').disabled=false;
+      const r=c.getBoundingClientRect(); burst(r.left+r.width/2,r.top+30,22);
+    });
+    box.appendChild(c);
+  });
+}
+$('#weiter2').addEventListener('click',()=>go('s3'));
+
+/* ════════ SCREEN 3: WOCHENENDEN ════════ */
+function buildWeek(){
+  const box=$('#weekendChips'); if(box.dataset.built) return; box.dataset.built=1;
+  WEEKENDS.forEach(w=>{
+    const c=document.createElement('div'); c.className='chip';
+    c.innerHTML=`<span class="ico">${w.ico}</span><span>${w.text}</span><span class="meta">${w.meta||''}</span>`;
+    c.addEventListener('click',()=>{
+      document.querySelectorAll('#weekendChips .chip').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel'); state.weekend=w; $('#confirm3').disabled=false;
+    });
+    box.appendChild(c);
+  });
+}
+$('#confirm3').addEventListener('click',finish);
+
+/* ════════ SCREEN 4 ════════ */
+function finish(){
+  $('#passDest').textContent = state.dest ? state.dest.name : '—';
+  $('#passDate').textContent = state.weekend ? state.weekend.text.replace('März','Mär').replace(' 2027',"'27") : '—';
+  $('#popline').textContent = `${TEXT.fromName} & ${TEXT.toName} → ${state.dest?state.dest.name:''}`;
+  go('s4'); partyTime();
+}
+$('#celebrate').addEventListener('click',partyTime);
+$('#restart').addEventListener('click',replay);
+
+/* ════════ HINTERGRUND-MUSIK (YouTube IFrame API) ════════ */
+const musicBtn=$('#musicToggle');
+let ytPlayer=null, ytReady=false, musicUnlocked=false, degraded=false, pendingUnlock=false;
+const UNLOCK_EVENTS=['pointerdown','touchstart','keydown','click'];
+
+if(MUSIC.enabled){
+  const tag=document.createElement('script'); tag.src='https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+  // beim ALLERERSTEN Antippen/Klick irgendwo den Ton freischalten (unsichtbar)
+  UNLOCK_EVENTS.forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true}));
+}
+window.onYouTubeIframeAPIReady=function(){
+  try{
+    ytPlayer=new YT.Player('ytplayer',{
+      height:'200', width:'200', videoId:MUSIC.youtubeId, host:'https://www.youtube.com',
+      playerVars:{ autoplay:1, mute:1, controls:0, disablekb:1, modestbranding:1, rel:0, playsinline:1,
+                   loop:MUSIC.loop?1:0, playlist:MUSIC.loop?MUSIC.youtubeId:undefined },
+      events:{
+        onReady:()=>{ ytReady=true; try{ytPlayer.setVolume(MUSIC.volume); ytPlayer.playVideo();}catch(e){}
+                      if(pendingUnlock) unlockAudio(); },
+        onStateChange:e=>{ if(MUSIC.loop && e.data===YT.PlayerState.ENDED){ try{ytPlayer.seekTo(0);ytPlayer.playVideo();}catch(e){} } },
+        onError:()=>degrade()
+      }
+    });
+  }catch(e){ degrade(); }
+};
+function unlockAudio(){
+  if(!MUSIC.enabled || degraded || musicUnlocked) return;
+  if(!ytReady){ pendingUnlock=true; return; }   // player noch nicht bereit -> nächster Tap versucht es erneut
+  try{
+    ytPlayer.unMute(); ytPlayer.setVolume(MUSIC.volume); ytPlayer.playVideo();
+    musicUnlocked=true;
+    musicBtn.style.display='flex'; musicBtn.textContent='🔊'; musicBtn.classList.add('playing'); musicBtn.title='Musik stummschalten';
+    UNLOCK_EVENTS.forEach(ev=>document.removeEventListener(ev,unlockAudio,{capture:true}));
+  }catch(e){ /* nicht freigeschaltet -> beim nächsten Tap erneut */ }
+}
+function startMusic(){ unlockAudio(); }            // wird vom Kuvert-Öffnen aufgerufen
+function degrade(){ degraded=true; musicBtn.style.display='none'; }
+function toggleMusic(){
+  if(!MUSIC.enabled || degraded || !ytReady) return;
+  try{
+    if(ytPlayer.isMuted()){ ytPlayer.unMute(); ytPlayer.setVolume(MUSIC.volume); ytPlayer.playVideo();
+      musicBtn.textContent='🔊'; musicBtn.classList.add('playing'); musicBtn.title='Musik stummschalten'; }
+    else { ytPlayer.mute();
+      musicBtn.textContent='🔇'; musicBtn.classList.remove('playing'); musicBtn.title='Musik einschalten'; }
+  }catch(e){}
+}
+musicBtn.addEventListener('click',toggleMusic);
+
+/* ════════ KONFETTI + HERZEN ════════ */
+const cv=$('#confetti'),ctx=cv.getContext('2d'); let parts=[],raf=null;
+function size(){cv.width=innerWidth;cv.height=innerHeight;} size(); addEventListener('resize',size);
+const COL=['#ff5e5b','#ffc145','#2ec4b6','#7a4fb0','#fbf1dd','#e63946'];
+function spawn(x,y,n,spread){
+  for(let i=0;i<n;i++){const ang=Math.random()*Math.PI*2,sp=2+Math.random()*(spread||7);
+    parts.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-4,g:0.14+Math.random()*0.1,s:6+Math.random()*7,rot:Math.random()*6.28,vr:(Math.random()-.5)*.3,col:COL[(Math.random()*COL.length)|0],heart:Math.random()<0.32,life:1});}
+  if(!raf) loop();
+}
+function burst(x,y,n){ if(reduced) return; spawn(x,y,n||30,8); }
+function partyTime(){
+  if(reduced) return;
+  spawn(innerWidth*0.5,-10,120,10);
+  setTimeout(()=>spawn(0,innerHeight*0.3,60,12),200);
+  setTimeout(()=>spawn(innerWidth,innerHeight*0.3,60,12),400);
+  setTimeout(()=>spawn(innerWidth*0.5,-10,90,10),700);
+}
+function heart(x,y,s,col,rot){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(s/16,s/16);ctx.fillStyle=col;ctx.beginPath();
+  ctx.moveTo(0,4);ctx.bezierCurveTo(0,-2,-8,-2,-8,3);ctx.bezierCurveTo(-8,8,0,12,0,15);
+  ctx.bezierCurveTo(0,12,8,8,8,3);ctx.bezierCurveTo(8,-2,0,-2,0,4);ctx.fill();ctx.restore();
+}
+function loop(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vx*=0.99;if(p.y>cv.height+40)p.life=0;
+    if(p.heart){heart(p.x,p.y,p.s*1.6,p.col,p.rot);}
+    else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.col;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);ctx.restore();}});
+  parts=parts.filter(p=>p.life);
+  if(parts.length) raf=requestAnimationFrame(loop); else raf=null;
+}
+</script>
+</body>
+</html>
